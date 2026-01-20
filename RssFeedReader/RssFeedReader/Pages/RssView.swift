@@ -1,69 +1,42 @@
 import SwiftUI
 
 struct RssView: View {
+    @Environment(\.openURL) private var openURL
+
     let items: [FeedItem]
     let reload: () async -> Void
 
+    // 2列固定（必要なら adaptive に変える）
+    private let columns: [GridItem] = [
+        GridItem(.flexible(), spacing: 16),
+        GridItem(.flexible(), spacing: 16),
+    ]
+
     var body: some View {
         VStack(spacing: 12) {
-            List {
-                Section("記事一覧") {
-                    ForEach(items) { item in
-                        HStack {
-                            if let url = item.thumbnailURL {
-                                AsyncImage(url: url) { img in
-                                    img.resizable().scaledToFill()
-                                } placeholder: {
-                                    ProgressView()
-                                }
-                                .frame(width: 40, height: 40)
-                                .clipped()
-                                .cornerRadius(5)
-                            } else if let url = item.siteImageURL {
-                                AsyncImage(url: url) { img in
-                                    img.resizable().scaledToFill()
-                                } placeholder: {
-                                    ProgressView()
-                                }
-                                .frame(width: 40, height: 40)
-                                .clipped()
-                                .cornerRadius(5)
-                            } else {
-                                Text(item.siteTitle != "" ? item.siteTitle : "Unknown")
-                                    .foregroundStyle(.secondary)
-                                    .foregroundColor(.white)
-                                    .padding(2)                // ← 文字と背景の間
-                                    .frame(width: 40, height: 40)
-                                    .background(Color.black.opacity(0.9))
-                                    .cornerRadius(5)
-                            }
 
-                            VStack(alignment: .leading) {
-                                Text(item.title).font(.headline)
-                                HStack {
-                                    if let d = item.pubDate {
-                                        Text(d.formatted())
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                    Text("by \(item.siteTitle)")                               .font(.footnote)
-                                        .foregroundStyle(.blue)
-                                }
+            ScrollView {
+                LazyVGrid(columns: columns, spacing: 16) {
+                    ForEach(items) { item in
+                        RssCardView(item: item) {
+                            if let url = URL(string: item.link) {
+                                openURL(url)
                             }
                         }
                     }
                 }
+                .padding(16)
             }
             Button("更新") {
                 Task { await reload() }
             }
         }
-        .padding()
         .task {
             await reload()
         }
     }
 }
+
 
 #Preview {
     RssView(

@@ -15,7 +15,11 @@ struct SettingView: View {
                     let t = newURL.trimmingCharacters(in: .whitespacesAndNewlines)
                     guard !t.isEmpty else { return }
                     vm.feeds.append(
-                        Feed(url: t, limit: nil)
+                        Feed(
+                            url: t,
+                            limit: nil,
+                            pubDateLimitDay: nil
+                        )
                     )
                     newURL = ""
                 }

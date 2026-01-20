@@ -4,67 +4,133 @@ import Combine
 @MainActor
 final class FeedViewModel: ObservableObject {
     @Published var feeds: [Feed] = [
-        Feed(url: "https://zenn.dev/feed", limit: nil),
-        Feed(url: "https://techfeed.io/feeds/categories/all?userId=5d719074b7fe174f32c77338", limit: nil),
-        Feed(url: "https://feeds.rebuild.fm/rebuildfm", limit: nil),
-        Feed(url: "https://www.publickey1.jp/atom.xml", limit: nil),
-        Feed(url: "https://jser.info/rss/", limit: nil),
-        Feed(url: "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml", limit: nil),
+        Feed(
+            url: "https://zenn.dev/feed",
+            limit: nil,
+            pubDateLimitDay: 14
+        ),
+        Feed(
+            url: "https://techfeed.io/feeds/categories/all?userId=5d719074b7fe174f32c77338",
+            limit: nil,
+            pubDateLimitDay: 14
+        ),
+        Feed(
+            url: "https://feeds.rebuild.fm/rebuildfm",
+            limit: 5,
+            pubDateLimitDay: 40
+        ),
+        Feed(
+            url: "https://www.publickey1.jp/atom.xml",
+            limit: nil,
+            pubDateLimitDay: 20
+        ),
+        Feed(
+            url: "https://jser.info/rss/",
+            limit: nil,
+            pubDateLimitDay: 30
+        ),
+        Feed(
+            url: "https://qiita.com/popular-items/feed",
+            limit: 10,
+            pubDateLimitDay: 14
+        )
+        // Feed(url: "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml", limit: 5),
     ]
-    @Published var items: [FeedItem] = []
-    @Published var isLoading: Bool = false
-    @Published var errorMessage: String?
-
+    @Published private(set) var itemsByFeedURL: [String: [FeedItem]] = [:]
+    
+    
+    var items: [FeedItem] {
+        itemsByFeedURL.values
+            .flatMap { $0 }
+            .sorted { a, b in
+                switch (a.pubDate, b.pubDate) {
+                case let (x?, y?): return x > y
+                case (_?, nil):   return true
+                case (nil, _?):   return false
+                default:          return a.title < b.title
+                }
+            }
+    }
+    
     private let parser = UnifiedFeedParser()
 
-    /// RSSを取得してitemsに反映する
+    var mergedItems: [FeedItem] {
+        itemsByFeedURL.values
+            .flatMap { $0 }
+            .sorted { a, b in
+                switch (a.pubDate, b.pubDate) {
+                case let (x?, y?): return x > y
+                case (_?, nil): return true
+                case (nil, _?): return false
+                default: return a.title < b.title
+                }
+            }
+    }
+    
     func reload() async {
-        errorMessage = nil
-        isLoading = true
-        defer { isLoading = false }
+        await reloadAll()
+    }
+    
+    func reloadAll() async {
+        let now = Date()
+        let calendar = Calendar.current
+        var newDict: [String: [FeedItem]] = [:]
 
-        var merged: [FeedItem] = []
-
-        await withTaskGroup(of: [FeedItem].self) { group in
+        await withTaskGroup(of: (String, [FeedItem]).self) { group in
             for feed in feeds {
-                let text = feed.url
-                let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-                guard let url = URL(string: trimmed) else { continue }
-
                 group.addTask {
+                    let urlText = feed.url.trimmingCharacters(in: .whitespacesAndNewlines)
+                    guard let url = URL(string: urlText) else { return (feed.url, []) }
+
                     do {
                         let (data, response) = try await URLSession.shared.data(from: url)
-                        if let http = response as? HTTPURLResponse {
-                            print("status:", http.statusCode)
-                            print("content-type:", http.value(forHTTPHeaderField: "Content-Type") ?? "nil")
-                            print("content-encoding:", http.value(forHTTPHeaderField: "Content-Encoding") ?? "nil")
+                        if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
+                            return (feed.url, [])
                         }
 
-                        print("head-bytes:", data.prefix(8).map { String(format: "%02x", $0) }.joined(separator: " "))
-                        print("head-text:", String(decoding: data.prefix(200), as: UTF8.self))
-                        let items = try await self.parser.parse(data: data)
-                        return items
+                        var items = try await self.parser.parse(data: data)
+
+                        // sourceFeedURL を入れる
+                        for i in items.indices {
+                            items[i].sourceFeedURL = feed.url
+                        }
+
+                        if let cutoff = await feed.pubDateCutoffDate(now: now, calendar: calendar) {
+                            items = items.filter { item in
+                                // pubDateがない記事は落とすのが無難（残したいなら仕様を決める）
+                                guard let d = item.pubDate else { return false }
+                                return d >= cutoff
+                            }
+                        }
+
+                        // 更新日でソート
+                        items.sort { a, b in
+                            switch (a.pubDate, b.pubDate) {
+                            case let (x?, y?): return x > y
+                            case (_?, nil): return true
+                            case (nil, _?): return false
+                            default: return a.title < b.title
+                            }
+                        }
+
+                        // ★ limit 適用（表示件数のカスタマイズ）
+                        if let limit = feed.limit, limit >= 0, items.count > limit {
+                            items = Array(items.prefix(limit))
+                        }
+
+                        return (feed.url, items)
                     } catch {
-                        // 1フィード失敗は無視（ログだけ）
-                        print("RSS取得失敗:", trimmed, error)
-                        return []
+                        return (feed.url, [])
                     }
                 }
             }
 
-            for await result in group {
-                merged.append(contentsOf: result)
+            for await (feedURL, items) in group {
+                newDict[feedURL] = items
             }
         }
-        // 🔑 更新日時が新しい順にソート
-        items = merged.sorted {
-            switch ($0.pubDate, $1.pubDate) {
-            case let (a?, b?): return a > b
-            case (_?, nil):   return true
-            case (nil, _?):   return false
-            case (nil, nil):  return $0.title < $1.title
-            }
-        }
+
+        itemsByFeedURL = newDict
     }
 }
 
