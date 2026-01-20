@@ -12,9 +12,7 @@ struct RssCardView: View {
                 HStack(alignment: .center, spacing: 10) {
                     siteIcon
                         .frame(width: 28, height: 28)
-                        
                         .clipShape(RoundedRectangle(cornerRadius: 7))
-
                     VStack(alignment: .leading, spacing: 2) {
                         Text(item.siteTitle.isEmpty ? item.formatSiteTitleFallback() : item.siteTitle)
                             .font(.subheadline)
