@@ -13,6 +13,7 @@ struct ContentView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             RssView(
+                feeds: vm.feeds,
                 items: vm.items,
                 reload: vm.reload,
             )

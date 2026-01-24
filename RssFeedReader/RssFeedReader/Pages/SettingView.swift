@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct SettingView: View {
-    let vm: FeedViewModel
+    @ObservedObject var vm: FeedViewModel
     @State private var newURL: String = ""
 
     var body: some View {
@@ -18,7 +18,8 @@ struct SettingView: View {
                         Feed(
                             url: t,
                             limit: nil,
-                            pubDateLimitDay: nil
+                            pubDateLimitDay: nil,
+                            show: true                            
                         )
                     )
                     newURL = ""
@@ -28,8 +29,15 @@ struct SettingView: View {
             // 登録済みURL一覧
             List {
                 Section("RSSフィード") {
-                    ForEach(vm.feeds, id: \.self) { feed in
-                        Text(feed.url)
+                    ForEach($vm.feeds, id: \.self) { $feed in
+                        HStack {
+                            Toggle(isOn: $feed.show) {
+                                Text(feed.url)
+                                    .lineLimit(1)
+                                    .truncationMode(.middle)
+                            }.toggleStyle(.switch)
+                        }
+                        
                     }
                     .onDelete { vm.feeds.remove(atOffsets: $0) }
                 }

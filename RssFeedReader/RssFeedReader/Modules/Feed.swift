@@ -1,10 +1,11 @@
 import Foundation
 
-struct Feed: Identifiable, Hashable {
+struct Feed: Identifiable, Hashable, Codable {
     var id: String { url }
     let url: String
     let limit : Int?
     let pubDateLimitDay: Int?
+    var show: Bool
 }
 
 extension Feed {

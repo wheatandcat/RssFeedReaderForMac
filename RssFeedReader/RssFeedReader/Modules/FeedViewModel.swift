@@ -3,40 +3,52 @@ import Combine
 
 @MainActor
 final class FeedViewModel: ObservableObject {
-    @Published var feeds: [Feed] = [
+    @Published var feeds: [Feed] = [] {
+        didSet {
+            saveFeeds()
+        }
+    }
+    @Published private(set) var itemsByFeedURL: [String: [FeedItem]] = [:]
+    
+    static let defaultFeeds: [Feed] = [
         Feed(
             url: "https://zenn.dev/feed",
             limit: nil,
-            pubDateLimitDay: 14
+            pubDateLimitDay: 14,
+            show: true
         ),
         Feed(
             url: "https://techfeed.io/feeds/categories/all?userId=5d719074b7fe174f32c77338",
             limit: nil,
-            pubDateLimitDay: 14
+            pubDateLimitDay: 14,
+            show: true
         ),
         Feed(
             url: "https://feeds.rebuild.fm/rebuildfm",
             limit: 5,
-            pubDateLimitDay: 40
+            pubDateLimitDay: 40,
+            show: true
         ),
         Feed(
             url: "https://www.publickey1.jp/atom.xml",
             limit: nil,
-            pubDateLimitDay: 20
+            pubDateLimitDay: 20,
+            show: true
         ),
         Feed(
             url: "https://jser.info/rss/",
             limit: nil,
-            pubDateLimitDay: 30
+            pubDateLimitDay: 30,
+            show: true
         ),
         Feed(
             url: "https://qiita.com/popular-items/feed",
             limit: 10,
-            pubDateLimitDay: 14
+            pubDateLimitDay: 14,
+            show: true
         )
         // Feed(url: "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml", limit: 5),
     ]
-    @Published private(set) var itemsByFeedURL: [String: [FeedItem]] = [:]
     
     
     var items: [FeedItem] {
@@ -53,7 +65,47 @@ final class FeedViewModel: ObservableObject {
     }
     
     private let parser = UnifiedFeedParser()
+    
+    private enum DefaultsKey {
+        static let feeds = "feeds.v1"
+    }
+    
+    private var cancellables = Set<AnyCancellable>()
 
+    init() {
+        loadFeeds()
+
+        // 初回起動で空ならデフォルトを入れる
+        if feeds.isEmpty {
+            feeds = Self.defaultFeeds
+        }
+    }
+    
+    func loadFeeds() {
+        guard
+            let data = UserDefaults.standard.data(forKey: DefaultsKey.feeds)
+        else {
+            feeds = []
+            return
+        }
+
+        do {
+            feeds = try JSONDecoder().decode([Feed].self, from: data)
+        } catch {
+            print("❌ Failed to load feeds:", error)
+            feeds = []
+        }
+    }
+
+    func saveFeeds() {
+        do {
+            let data = try JSONEncoder().encode(feeds)
+            UserDefaults.standard.set(data, forKey: DefaultsKey.feeds)
+        } catch {
+            print("❌ Failed to save feeds:", error)
+        }
+    }
+    
     var mergedItems: [FeedItem] {
         itemsByFeedURL.values
             .flatMap { $0 }
@@ -79,6 +131,8 @@ final class FeedViewModel: ObservableObject {
         await withTaskGroup(of: (String, [FeedItem]).self) { group in
             for feed in feeds {
                 group.addTask {
+                    if feed.show == false { return (feed.url, []) }
+
                     let urlText = feed.url.trimmingCharacters(in: .whitespacesAndNewlines)
                     guard let url = URL(string: urlText) else { return (feed.url, []) }
 
