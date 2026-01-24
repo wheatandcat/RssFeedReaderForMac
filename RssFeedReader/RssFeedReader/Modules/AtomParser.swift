@@ -10,8 +10,8 @@ final class AtomParser: NSObject, XMLParserDelegate {
     private var inFeed: Bool = true
     private var siteTitle: String = ""
     private var siteURL: String = ""
-    private var siteImageURL: URL? = nil
-    
+    private var siteImageURL: URL?
+
     // Atomの日付はISO8601が多い（小数秒あり/なし両対応）
     private let iso1 = ISO8601DateFormatter()
     private let iso2: ISO8601DateFormatter = {
@@ -36,10 +36,10 @@ final class AtomParser: NSObject, XMLParserDelegate {
         throw parser.parserError ?? NSError(domain: "AtomParser", code: 1)
     }
 
-    func parser(_ parser: XMLParser, didStartElement elementName: String,
-                namespaceURI: String?, qualifiedName qName: String?,
-                attributes attributeDict: [String : String] = [:]) {
-
+    func parser(_: XMLParser, didStartElement elementName: String,
+                namespaceURI _: String?, qualifiedName _: String?,
+                attributes attributeDict: [String: String] = [:])
+    {
         currentElement = elementName
         buffer = ""
 
@@ -61,7 +61,8 @@ final class AtomParser: NSObject, XMLParserDelegate {
             let rel = attributeDict["rel"]?.lowercased()
             if rel == nil || rel == "alternate",
                siteURL.isEmpty,
-               let href = attributeDict["href"] {
+               let href = attributeDict["href"]
+            {
                 siteURL = href
             }
         }
@@ -76,7 +77,7 @@ final class AtomParser: NSObject, XMLParserDelegate {
 
             if let href, let url = URL(string: href) {
                 // 通常リンク（優先：relがalternate or nil）
-                if (rel == nil || rel == "alternate"), (currentItem?.link.isEmpty ?? true) {
+                if rel == nil || rel == "alternate", currentItem?.link.isEmpty ?? true {
                     currentItem?.link = href
                 }
 
@@ -88,12 +89,12 @@ final class AtomParser: NSObject, XMLParserDelegate {
             // 最下位：enclosureっぽいリンクが画像なら保留
             if rel == "enclosure",
                let href,
-               let url = URL(string: href) {
-
+               let url = URL(string: href)
+            {
                 let isImageByType = (type?.hasPrefix("image/") == true)
                 let isImageByExt = Self.isImageURL(url)
 
-                if (isImageByType || isImageByExt), pendingEnclosureImageURL == nil {
+                if isImageByType || isImageByExt, pendingEnclosureImageURL == nil {
                     pendingEnclosureImageURL = url
                 }
             }
@@ -102,20 +103,22 @@ final class AtomParser: NSObject, XMLParserDelegate {
         }
 
         // 高優先：media:thumbnail / media:content（url属性）
-        if (name == "media:thumbnail" || name == "thumbnail" || name == "media:content" || name == "content"),
+        if name == "media:thumbnail" || name == "thumbnail" || name == "media:content" || name == "content",
            let urlStr = attributeDict["url"],
            let url = URL(string: urlStr),
-           currentItem?.thumbnailURL == nil {
+           currentItem?.thumbnailURL == nil
+        {
             currentItem?.thumbnailURL = url
         }
     }
 
-    func parser(_ parser: XMLParser, foundCharacters string: String) {
+    func parser(_: XMLParser, foundCharacters string: String) {
         buffer += string
     }
 
-    func parser(_ parser: XMLParser, didEndElement elementName: String,
-                namespaceURI: String?, qualifiedName qName: String?) {
+    func parser(_: XMLParser, didEndElement elementName: String,
+                namespaceURI _: String?, qualifiedName _: String?)
+    {
         let name = elementName.lowercased()
         let text = buffer.trimmingCharacters(in: .whitespacesAndNewlines)
 
@@ -132,7 +135,7 @@ final class AtomParser: NSObject, XMLParserDelegate {
                 break
             }
         }
-        
+
         guard var item = currentItem else { return }
 
         switch name {
@@ -179,14 +182,14 @@ final class AtomParser: NSObject, XMLParserDelegate {
     }
 
     private static func isImageURL(_ url: URL) -> Bool {
-        let exts: Set<String> = ["jpg","jpeg","png","gif","webp","bmp","tiff","heic","avif"]
+        let exts: Set<String> = ["jpg", "jpeg", "png", "gif", "webp", "bmp", "tiff", "heic", "avif"]
         return exts.contains(url.pathExtension.lowercased())
     }
 
     private static func firstImageURL(fromHTML html: String) -> URL? {
         let pattern = #"(?i)<img[^>]+src\s*=\s*["']([^"']+)["']"#
         guard let re = try? NSRegularExpression(pattern: pattern) else { return nil }
-        let range = NSRange(html.startIndex..<html.endIndex, in: html)
+        let range = NSRange(html.startIndex ..< html.endIndex, in: html)
         guard let m = re.firstMatch(in: html, range: range),
               m.numberOfRanges >= 2,
               let r = Range(m.range(at: 1), in: html) else { return nil }

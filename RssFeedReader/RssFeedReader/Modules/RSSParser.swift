@@ -7,7 +7,7 @@ final class RSSParser: NSObject, XMLParserDelegate {
     private var buffer: String = ""
     private var siteTitle = ""
     private var siteURL = ""
-    private var siteImageURL: URL? = nil
+    private var siteImageURL: URL?
     private var inChannel = false
     private var inImage = false
 
@@ -28,16 +28,17 @@ final class RSSParser: NSObject, XMLParserDelegate {
         siteImageURL = nil
         inChannel = false
         inImage = false
-        
+
         let parser = XMLParser(data: data)
         parser.delegate = self
         if parser.parse() { return items }
         throw parser.parserError ?? NSError(domain: "RSSParser", code: 1)
     }
 
-    func parser(_ parser: XMLParser, didStartElement elementName: String,
-                namespaceURI: String?, qualifiedName qName: String?,
-                attributes attributeDict: [String : String] = [:]) {
+    func parser(_: XMLParser, didStartElement elementName: String,
+                namespaceURI _: String?, qualifiedName _: String?,
+                attributes attributeDict: [String: String] = [:])
+    {
         currentElement = elementName
         buffer = ""
 
@@ -59,17 +60,19 @@ final class RSSParser: NSObject, XMLParserDelegate {
             currentItem?.siteImageURL = siteImageURL
             return
         }
-        
-        if inChannel, (name == "itunes:image" || name == "image"),
-           let href = attributeDict["href"], let url = URL(string: href) {
+
+        if inChannel, name == "itunes:image" || name == "image",
+           let href = attributeDict["href"], let url = URL(string: href)
+        {
             if siteImageURL == nil { siteImageURL = url }
         }
 
         if let _ = currentItem {
             let name = elementName.lowercased()
-            if (name == "media:thumbnail" || name == "thumbnail" || name == "media:content" || name == "content"),
+            if name == "media:thumbnail" || name == "thumbnail" || name == "media:content" || name == "content",
                let urlStr = attributeDict["url"],
-               let url = URL(string: urlStr) {
+               let url = URL(string: urlStr)
+            {
                 // 既に設定済みなら上書きしない（最初に取れたものを優先）
                 if currentItem?.thumbnailURL == nil {
                     currentItem?.thumbnailURL = url
@@ -80,7 +83,8 @@ final class RSSParser: NSObject, XMLParserDelegate {
                let type = attributeDict["type"]?.lowercased(),
                type.hasPrefix("image/"),
                let urlStr = attributeDict["url"],
-               let url = URL(string: urlStr) {
+               let url = URL(string: urlStr)
+            {
                 if currentItem?.thumbnailURL == nil {
                     currentItem?.thumbnailURL = url
                 }
@@ -89,7 +93,8 @@ final class RSSParser: NSObject, XMLParserDelegate {
             if name == "enclosure",
                let urlStr = attributeDict["url"],
                let url = URL(string: urlStr),
-               isImageURL(url) {
+               isImageURL(url)
+            {
                 if currentItem?.thumbnailURL == nil {
                     currentItem?.thumbnailURL = url
                 }
@@ -97,13 +102,13 @@ final class RSSParser: NSObject, XMLParserDelegate {
         }
     }
 
-    func parser(_ parser: XMLParser, foundCharacters string: String) {
+    func parser(_: XMLParser, foundCharacters string: String) {
         buffer += string
     }
 
-    func parser(_ parser: XMLParser, didEndElement elementName: String,
-                namespaceURI: String?, qualifiedName qName: String?) {
-
+    func parser(_: XMLParser, didEndElement elementName: String,
+                namespaceURI _: String?, qualifiedName _: String?)
+    {
         let name = elementName.lowercased()
         let text = buffer.trimmingCharacters(in: .whitespacesAndNewlines)
 
@@ -129,14 +134,16 @@ final class RSSParser: NSObject, XMLParserDelegate {
                 break
             }
         }
-        
+
         guard var item = currentItem else { return }
 
         switch elementName.lowercased() {
         case "title":
             item.title += text
+
         case "link":
             item.link += text
+
         case "pubdate":
             item.pubDate = rfc822.date(from: text)
 
@@ -163,7 +170,7 @@ final class RSSParser: NSObject, XMLParserDelegate {
         // src='...' / src="..." 両対応（雑だけど実用上かなり効く）
         let pattern = #"(?i)<img[^>]+src\s*=\s*["']([^"']+)["']"#
         guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
-        let range = NSRange(html.startIndex..<html.endIndex, in: html)
+        let range = NSRange(html.startIndex ..< html.endIndex, in: html)
         guard let m = regex.firstMatch(in: html, range: range),
               m.numberOfRanges >= 2,
               let r = Range(m.range(at: 1), in: html) else { return nil }
@@ -171,10 +178,10 @@ final class RSSParser: NSObject, XMLParserDelegate {
         let urlStr = String(html[r])
         return URL(string: urlStr)
     }
-    
+
     private func isImageURL(_ url: URL) -> Bool {
         let imageExtensions: Set<String> = [
-            "jpg", "jpeg", "png", "gif", "webp", "bmp", "tiff", "heic", "avif"
+            "jpg", "jpeg", "png", "gif", "webp", "bmp", "tiff", "heic", "avif",
         ]
 
         let ext = url.pathExtension.lowercased()

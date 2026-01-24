@@ -46,7 +46,6 @@ struct RssCardView: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
-
             }
             .frame(height: 320)
             .padding(14)
@@ -116,7 +115,6 @@ struct RssCardView: View {
         }
     }
 }
-
 
 #Preview {
     RssCardView(
