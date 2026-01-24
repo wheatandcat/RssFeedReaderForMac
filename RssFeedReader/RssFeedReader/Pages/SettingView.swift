@@ -19,7 +19,7 @@ struct SettingView: View {
                             url: t,
                             limit: nil,
                             pubDateLimitDay: nil,
-                            show: true                            
+                            show: true
                         )
                     )
                     newURL = ""
@@ -37,7 +37,6 @@ struct SettingView: View {
                                     .truncationMode(.middle)
                             }.toggleStyle(.switch)
                         }
-                        
                     }
                     .onDelete { vm.feeds.remove(atOffsets: $0) }
                 }

@@ -39,7 +39,6 @@ struct RssView: View {
     }
 }
 
-
 #Preview {
     VStack(spacing: 12) {
         RssView(
@@ -79,12 +78,12 @@ struct RssView: View {
                     limit: 10,
                     pubDateLimitDay: 14,
                     show: true
-                )
+                ),
             ],
             items: [
                 FeedItem(title: "Example News 1", link: "https://example.com/1", pubDate: Date(), thumbnailURL: nil, siteTitle: "iteeeeeeeewwwwwww"),
                 FeedItem(title: "Example News 2", link: "https://example.com/2", pubDate: Date().addingTimeInterval(-86400), thumbnailURL: URL(string: "https://placehold.jp/50x50.png")),
-                FeedItem(title: "Example News 3", link: "https://example.com/2", pubDate: Date().addingTimeInterval(-86400), thumbnailURL: URL(string: "https://placehold.jp/50x50.png"))
+                FeedItem(title: "Example News 3", link: "https://example.com/2", pubDate: Date().addingTimeInterval(-86400), thumbnailURL: URL(string: "https://placehold.jp/50x50.png")),
             ],
             reload: {}
         )

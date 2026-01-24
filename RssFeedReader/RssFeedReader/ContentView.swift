@@ -5,7 +5,6 @@ enum tab: Hashable {
     case config
 }
 
-
 struct ContentView: View {
     @StateObject private var vm = FeedViewModel()
     @State private var selectedTab: tab = .rss
@@ -15,14 +14,14 @@ struct ContentView: View {
             RssView(
                 feeds: vm.feeds,
                 items: vm.items,
-                reload: vm.reload,
+                reload: vm.reload
             )
             .tabItem {
                 Label("Rss", systemImage: "gearshape")
             }
             .tag(tab.rss)
             SettingView(
-                vm:vm
+                vm: vm
             )
             .tabItem {
                 Label("Config", systemImage: "person.2")
@@ -35,4 +34,3 @@ struct ContentView: View {
 #Preview {
     ContentView()
 }
-

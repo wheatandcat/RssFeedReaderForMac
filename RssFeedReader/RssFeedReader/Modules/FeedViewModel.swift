@@ -1,5 +1,5 @@
-import Foundation
 import Combine
+import Foundation
 
 @MainActor
 final class FeedViewModel: ObservableObject {
@@ -8,8 +8,9 @@ final class FeedViewModel: ObservableObject {
             saveFeeds()
         }
     }
+
     @Published private(set) var itemsByFeedURL: [String: [FeedItem]] = [:]
-    
+
     static let defaultFeeds: [Feed] = [
         Feed(
             url: "https://zenn.dev/feed",
@@ -46,30 +47,29 @@ final class FeedViewModel: ObservableObject {
             limit: 10,
             pubDateLimitDay: 14,
             show: true
-        )
+        ),
         // Feed(url: "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml", limit: 5),
     ]
-    
-    
+
     var items: [FeedItem] {
         itemsByFeedURL.values
             .flatMap { $0 }
             .sorted { a, b in
                 switch (a.pubDate, b.pubDate) {
                 case let (x?, y?): return x > y
-                case (_?, nil):   return true
-                case (nil, _?):   return false
-                default:          return a.title < b.title
+                case (_?, nil): return true
+                case (nil, _?): return false
+                default: return a.title < b.title
                 }
             }
     }
-    
+
     private let parser = UnifiedFeedParser()
-    
+
     private enum DefaultsKey {
         static let feeds = "feeds.v1"
     }
-    
+
     private var cancellables = Set<AnyCancellable>()
 
     init() {
@@ -80,7 +80,7 @@ final class FeedViewModel: ObservableObject {
             feeds = Self.defaultFeeds
         }
     }
-    
+
     func loadFeeds() {
         guard
             let data = UserDefaults.standard.data(forKey: DefaultsKey.feeds)
@@ -105,7 +105,7 @@ final class FeedViewModel: ObservableObject {
             print("❌ Failed to save feeds:", error)
         }
     }
-    
+
     var mergedItems: [FeedItem] {
         itemsByFeedURL.values
             .flatMap { $0 }
@@ -118,11 +118,11 @@ final class FeedViewModel: ObservableObject {
                 }
             }
     }
-    
+
     func reload() async {
         await reloadAll()
     }
-    
+
     func reloadAll() async {
         let now = Date()
         let calendar = Calendar.current
@@ -138,7 +138,7 @@ final class FeedViewModel: ObservableObject {
 
                     do {
                         let (data, response) = try await URLSession.shared.data(from: url)
-                        if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
+                        if let http = response as? HTTPURLResponse, !(200 ... 299).contains(http.statusCode) {
                             return (feed.url, [])
                         }
 
@@ -187,4 +187,3 @@ final class FeedViewModel: ObservableObject {
         itemsByFeedURL = newDict
     }
 }
-

@@ -16,9 +16,10 @@ struct FeedItem: Identifiable, Hashable {
 extension FeedItem {
     func formatSiteTitle() -> String {
         let siteName = siteTitle.split(separator: " ").first.map(String.init)
-        
+
         return siteName ?? ""
     }
+
     /// siteTitleが空のときに使うフォールバック（例：URLホスト名）
     func formatSiteTitleFallback() -> String {
         if let u = URL(string: siteURL), let host = u.host { return host }
@@ -32,4 +33,3 @@ extension FeedItem {
         return String(s.prefix(1)).uppercased()
     }
 }
-
