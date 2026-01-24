@@ -47,32 +47,38 @@ struct RssView: View {
                 Feed(
                     url: "https://zenn.dev/feed",
                     limit: nil,
-                    pubDateLimitDay: 14
+                    pubDateLimitDay: 14,
+                    show: true
                 ),
                 Feed(
                     url: "https://techfeed.io/feeds/categories/all?userId=5d719074b7fe174f32c77338",
                     limit: nil,
-                    pubDateLimitDay: 14
+                    pubDateLimitDay: 14,
+                    show: true
                 ),
                 Feed(
                     url: "https://feeds.rebuild.fm/rebuildfm",
                     limit: 5,
-                    pubDateLimitDay: 40
+                    pubDateLimitDay: 40,
+                    show: true
                 ),
                 Feed(
                     url: "https://www.publickey1.jp/atom.xml",
                     limit: nil,
-                    pubDateLimitDay: 20
+                    pubDateLimitDay: 20,
+                    show: true
                 ),
                 Feed(
                     url: "https://jser.info/rss/",
                     limit: nil,
-                    pubDateLimitDay: 30
+                    pubDateLimitDay: 30,
+                    show: true
                 ),
                 Feed(
                     url: "https://qiita.com/popular-items/feed",
                     limit: 10,
-                    pubDateLimitDay: 14
+                    pubDateLimitDay: 14,
+                    show: true
                 )
             ],
             items: [
