@@ -80,10 +80,6 @@ final class AtomParser: NSObject, XMLParserDelegate {
                 if rel == nil || rel == "alternate", currentItem?.link.isEmpty ?? true {
                     currentItem?.link = href
                 }
-
-                // 高優先：media系（Atomでも出る）
-                // ただし Atomのmedia:thumbnailは elementName に namespace が乗る場合があるので、qNameも見る
-                // nameだけで拾えるケースが多いので最低限で対応
             }
 
             // 最下位：enclosureっぽいリンクが画像なら保留
@@ -158,6 +154,10 @@ final class AtomParser: NSObject, XMLParserDelegate {
             if item.thumbnailURL == nil, let url = Self.firstImageURL(fromHTML: text) {
                 item.thumbnailURL = url
             }
+
+        case "id":
+            // Atomのfeed自体にも <id> があるので、entry内（currentItem != nil）だけ拾う
+            if item.stableID.isEmpty { item.stableID = text }
 
         case "entry":
             // 最下位：enclosure候補を採用

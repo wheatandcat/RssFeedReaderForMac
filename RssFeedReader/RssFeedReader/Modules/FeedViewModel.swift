@@ -65,6 +65,8 @@ final class FeedViewModel: ObservableObject {
     }
 
     private let parser = UnifiedFeedParser()
+    private let seenRepo = SeenStoreRepository()
+    private var seenStore: SeenStore = .init()
 
     private enum DefaultsKey {
         static let feeds = "feeds.v1"
@@ -124,6 +126,8 @@ final class FeedViewModel: ObservableObject {
     }
 
     func reloadAll() async {
+        seenStore = seenRepo.load()
+
         let now = Date()
         let calendar = Calendar.current
         var newDict: [String: [FeedItem]] = [:]
@@ -147,6 +151,14 @@ final class FeedViewModel: ObservableObject {
                         // sourceFeedURL を入れる
                         for i in items.indices {
                             items[i].sourceFeedURL = feed.url
+                            if items[i].stableID.isEmpty {
+                                items[i].stableID = items[i].link
+                            }
+                        }
+
+                        let seenSet = await self.seenStore.seenIDsByFeedURL[feed.url] ?? []
+                        for i in items.indices {
+                            items[i].isNew = !seenSet.contains(items[i].stableID)
                         }
 
                         if let cutoff = await feed.pubDateCutoffDate(now: now, calendar: calendar) {
@@ -185,5 +197,16 @@ final class FeedViewModel: ObservableObject {
         }
 
         itemsByFeedURL = newDict
+
+        // “今回表示した分” を既表示IDに追加して保存
+        for (feedURL, items) in newDict {
+            var set = seenStore.seenIDsByFeedURL[feedURL] ?? []
+            for item in items {
+                set.insert(item.stableID)
+            }
+            seenStore.seenIDsByFeedURL[feedURL] = set
+        }
+        seenStore.lastUpdatedAt = Date()
+        seenRepo.save(seenStore)
     }
 }

@@ -27,6 +27,15 @@ struct RssCardView: View {
                     }
 
                     Spacer()
+                    if item.isNew {
+                        Text("NEW")
+                            .font(.caption2)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(.red.opacity(0.9))
+                            .foregroundStyle(.white)
+                            .clipShape(Capsule())
+                    }
                 }
 
                 Text(item.title.isEmpty ? "(no title)" : item.title)
@@ -38,7 +47,7 @@ struct RssCardView: View {
 
                 thumbnail
                     .frame(height: imageHeight)
-                    .frame(maxWidth: .infinity)
+                    .frame(maxWidth: 500)
                     .clipped()
                     .cornerRadius(12)
 
@@ -66,13 +75,13 @@ struct RssCardView: View {
     private var thumbnail: some View {
         if let url = item.thumbnailURL {
             AsyncImage(url: url) { img in
-                img.resizable().scaledToFill()
+                img.resizable().scaledToFill().frame(maxWidth: 350)
             } placeholder: {
                 placeholder
             }
         } else if let url = item.siteImageURL {
             AsyncImage(url: url) { img in
-                img.resizable().scaledToFill()
+                img.resizable().scaledToFill().frame(maxWidth: 350)
             } placeholder: {
                 placeholder
             }
