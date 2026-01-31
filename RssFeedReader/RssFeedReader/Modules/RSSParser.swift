@@ -147,11 +147,13 @@ final class RSSParser: NSObject, XMLParserDelegate {
         case "pubdate":
             item.pubDate = rfc822.date(from: text)
 
-        // 3) description / content:encoded から <img src="..."> を拾う（最後の砦）
         case "description", "content:encoded", "encoded":
             if item.thumbnailURL == nil, let url = Self.firstImageURL(fromHTML: text) {
                 item.thumbnailURL = url
             }
+
+        case "guid":
+            if item.stableID.isEmpty { item.stableID = text }
 
         case "item":
             items.append(item)

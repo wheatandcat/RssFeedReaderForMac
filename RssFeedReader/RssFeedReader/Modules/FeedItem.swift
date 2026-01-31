@@ -11,6 +11,9 @@ struct FeedItem: Identifiable, Hashable {
     var siteURL: String = ""
     var siteImageURL: URL? = nil
     var sourceFeedURL: String = ""
+
+    var stableID: String = ""
+    var isNew: Bool = false
 }
 
 extension FeedItem {
