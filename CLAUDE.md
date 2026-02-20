@@ -1,51 +1,45 @@
-# CLAUDE.md
+# AI-DLC and Spec-Driven Development
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Kiro-style Spec Driven Development implementation on AI-DLC (AI Development Life Cycle)
 
-## プロジェクト概要
+## Project Context
 
-macOS向けRSSフィードリーダーアプリ。SwiftUI + Xcodeプロジェクト。
-RSS 2.0とAtomフィードの両方に対応し、フィードごとに表示件数制限・日数制限・表示ON/OFFを設定可能。
+### Paths
+- Steering: `.kiro/steering/`
+- Specs: `.kiro/specs/`
 
-## ビルド・開発コマンド
+### Steering vs Specification
 
-```bash
-# コード整形
-swiftformat RssFeedReader/
+**Steering** (`.kiro/steering/`) - Guide AI with project-wide rules and context
+**Specs** (`.kiro/specs/`) - Formalize development process for individual features
 
-# Xcodeでビルド（CLI）
-xcodebuild -project RssFeedReader/RssFeedReader.xcodeproj -scheme RssFeedReader build
+### Active Specifications
+- Check `.kiro/specs/` for active specifications
+- Use `/kiro:spec-status [feature-name]` to check progress
 
-# テスト実行
-xcodebuild -project RssFeedReader/RssFeedReader.xcodeproj -scheme RssFeedReader test
-```
+## Development Guidelines
+- Think in English, generate responses in Japanese. All Markdown content written to project files (e.g., requirements.md, design.md, tasks.md, research.md, validation reports) MUST be written in the target language configured for this specification (see spec.json.language).
 
-基本的にはXcodeで開発する（`open RssFeedReader/RssFeedReader.xcodeproj`）。
+## Minimal Workflow
+- Phase 0 (optional): `/kiro:steering`, `/kiro:steering-custom`
+- Phase 1 (Specification):
+  - `/kiro:spec-init "description"`
+  - `/kiro:spec-requirements {feature}`
+  - `/kiro:validate-gap {feature}` (optional: for existing codebase)
+  - `/kiro:spec-design {feature} [-y]`
+  - `/kiro:validate-design {feature}` (optional: design review)
+  - `/kiro:spec-tasks {feature} [-y]`
+- Phase 2 (Implementation): `/kiro:spec-impl {feature} [tasks]`
+  - `/kiro:validate-impl {feature}` (optional: after implementation)
+- Progress check: `/kiro:spec-status {feature}` (use anytime)
 
-## アーキテクチャ
+## Development Rules
+- 3-phase approval workflow: Requirements → Design → Tasks → Implementation
+- Human review required each phase; use `-y` only for intentional fast-track
+- Keep steering current and verify alignment with `/kiro:spec-status`
+- Follow the user's instructions precisely, and within that scope act autonomously: gather the necessary context and complete the requested work end-to-end in this run, asking questions only when essential information is missing or the instructions are critically ambiguous.
 
-```
-RssFeedReader/RssFeedReader/
-├── RssFeedReaderApp.swift   # @main エントリーポイント
-├── ContentView.swift        # TabView（Rss / Config タブ）
-├── Modules/                 # モデル・ロジック層
-│   ├── Feed.swift           # フィード設定モデル（URL, limit, pubDateLimitDay, show）
-│   ├── FeedItem.swift       # パース済み記事モデル
-│   ├── FeedViewModel.swift  # メインViewModel（フィード取得・永続化・既読管理）
-│   ├── UnifiedFeedParser.swift  # RSS/Atom自動判別パーサー
-│   ├── RSSParser.swift      # RSS 2.0パーサー
-│   ├── AtomParser.swift     # Atomパーサー
-│   └── SeenStore.swift      # 既読管理（SeenStore + SeenStoreRepository）
-└── Pages/                   # UI層
-    ├── RssView.swift        # フィード一覧（2列LazyVGrid）
-    ├── RssCardView.swift    # 記事カード
-    └── SettingView.swift    # フィード管理（追加/削除/表示切替）
-```
-
-### データフロー
-
-- `FeedViewModel`が`@Published`で`feeds`と`itemsByFeedURL`を管理
-- `feeds`の永続化は`UserDefaults`（キー: `feeds.v1`）、JSONエンコード/デコード
-- 既読状態は`SeenStore`で`UserDefaults`（キー: `seen-store.v1`）に保存
-- フィード取得は`withTaskGroup`で並行実行
-- `ContentView`から`RssView`と`SettingView`にViewModelを渡す
+## Steering Configuration
+- Load entire `.kiro/steering/` as project memory
+- Default files: `product.md`, `tech.md`, `structure.md`
+- Custom files are supported (managed via `/kiro:steering-custom`)
