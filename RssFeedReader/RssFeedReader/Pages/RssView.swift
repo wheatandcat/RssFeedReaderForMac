@@ -6,6 +6,7 @@ struct RssView: View {
     let feeds: [Feed]
     let items: [FeedItem]
     let reload: () async -> Void
+    let onOpen: (FeedItem) -> Void
 
     // 2列固定（必要なら adaptive に変える）
     private let columns: [GridItem] = [
@@ -22,6 +23,7 @@ struct RssView: View {
                             if let url = URL(string: item.link) {
                                 openURL(url)
                             }
+                            onOpen(item)
                         }
                     }
                 }
@@ -85,7 +87,8 @@ struct RssView: View {
                 FeedItem(title: "Example News 2", link: "https://example.com/2", pubDate: Date().addingTimeInterval(-86400), thumbnailURL: URL(string: "https://placehold.jp/50x50.png")),
                 FeedItem(title: "Example News 3", link: "https://example.com/2", pubDate: Date().addingTimeInterval(-86400), thumbnailURL: URL(string: "https://placehold.jp/50x50.png")),
             ],
-            reload: {}
+            reload: {},
+            onOpen: { _ in }
         )
     }.frame(maxWidth: .infinity, maxHeight: .infinity)
 }
