@@ -64,9 +64,13 @@ final class FeedViewModel: ObservableObject {
             }
     }
 
+    @Published private(set) var historyEntries: [HistoryEntry] = []
+
     private let parser = UnifiedFeedParser()
     private let seenRepo = SeenStoreRepository()
     private var seenStore: SeenStore = .init()
+    private let historyRepo: HistoryStoreRepository
+    private var historyStore: HistoryStore = .init()
 
     private enum DefaultsKey {
         static let feeds = "feeds.v1"
@@ -74,7 +78,11 @@ final class FeedViewModel: ObservableObject {
 
     private var cancellables = Set<AnyCancellable>()
 
-    init() {
+    init(historyRepo: HistoryStoreRepository = HistoryStoreRepository()) {
+        self.historyRepo = historyRepo
+        historyStore = historyRepo.load()
+        historyEntries = historyStore.entries
+
         loadFeeds()
 
         // 初回起動で空ならデフォルトを入れる
@@ -119,6 +127,50 @@ final class FeedViewModel: ObservableObject {
                 default: return a.title < b.title
                 }
             }
+    }
+
+    func recordHistory(_ item: FeedItem, at date: Date = Date()) {
+        let effectiveStableID = item.stableID.isEmpty ? item.link : item.stableID
+        let feedName = item.siteTitle.isEmpty ? item.formatSiteTitleFallback() : item.siteTitle
+
+        if let idx = historyStore.entries.firstIndex(where: { $0.stableID == effectiveStableID }) {
+            // 既存エントリの viewedAt を更新して先頭へ移動
+            historyStore.entries[idx].viewedAt = date
+            let updated = historyStore.entries.remove(at: idx)
+            historyStore.entries.insert(updated, at: 0)
+        } else {
+            // 新規エントリを先頭に挿入
+            let entry = HistoryEntry(
+                stableID: effectiveStableID,
+                title: item.title,
+                link: item.link,
+                feedName: feedName,
+                viewedAt: date
+            )
+            historyStore.entries.insert(entry, at: 0)
+        }
+
+        // 500件上限：超過分を末尾から削除
+        if historyStore.entries.count > 500 {
+            historyStore.entries = Array(historyStore.entries.prefix(500))
+        }
+
+        historyStore.lastUpdatedAt = date
+        historyEntries = historyStore.entries
+        historyRepo.save(historyStore)
+    }
+
+    func removeHistoryEntry(_ entry: HistoryEntry) {
+        historyStore.entries.removeAll { $0.stableID == entry.stableID }
+        historyStore.lastUpdatedAt = Date()
+        historyEntries = historyStore.entries
+        historyRepo.save(historyStore)
+    }
+
+    func clearHistory() {
+        historyStore = HistoryStore()
+        historyEntries = []
+        historyRepo.save(historyStore)
     }
 
     func reload() async {
