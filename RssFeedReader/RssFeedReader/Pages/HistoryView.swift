@@ -50,17 +50,22 @@ struct HistoryView: View {
     }
 
     private var listView: some View {
-        List {
-            ForEach(historyEntries) { entry in
-                entryRow(entry)
-                    .contextMenu {
-                        Button("この履歴を削除", role: .destructive) {
-                            onDelete(entry)
+        VStack {
+            List {
+                ForEach(historyEntries) { entry in
+                    entryRow(entry)
+                        .contextMenu {
+                            Button("この履歴を削除", role: .destructive) {
+                                onDelete(entry)
+                            }
                         }
-                    }
+                }
             }
         }
-        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .background(Color.black)
+        .clipShape(RoundedRectangle(cornerRadius: 6))
+        .padding()
     }
 
     @ViewBuilder
@@ -116,18 +121,11 @@ struct HistoryView: View {
                 viewedAt: Date().addingTimeInterval(-3600)
             ),
             HistoryEntry(
-                stableID: "id-2",
-                title: "SwiftUI で macOS アプリを作る",
-                link: "https://example.com/swiftui-macos",
-                feedName: "Zenn",
-                viewedAt: Date().addingTimeInterval(-7200)
-            ),
-            HistoryEntry(
-                stableID: "id-3",
-                title: "Xcode 16 の便利な新機能",
-                link: "https://example.com/xcode16",
-                feedName: "Qiita",
-                viewedAt: Date().addingTimeInterval(-86400)
+                stableID: "id-1",
+                title: "Swift 6 の新機能について詳しく解説します",
+                link: "https://swift.org/blog/swift6",
+                feedName: "Swift.org",
+                viewedAt: Date().addingTimeInterval(-3600)
             ),
         ],
         onOpen: { _ in },
