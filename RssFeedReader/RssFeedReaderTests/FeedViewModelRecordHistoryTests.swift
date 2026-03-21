@@ -45,7 +45,7 @@ struct FeedViewModelRecordHistoryTests {
 
     @Test func recordItemUsesSiteTitleFallbackWhenSiteTitleEmpty() {
         let vm = makeVM()
-        let item = makeItem(siteTitle: "", link: "https://example.com/article")
+        let item = makeItem(link: "https://example.com/article", siteTitle: "")
 
         vm.recordHistory(item)
 
