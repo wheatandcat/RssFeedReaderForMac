@@ -2,6 +2,7 @@ import SwiftUI
 
 enum tab: Hashable {
     case rss
+    case forYou
     case config
     case history
 }
@@ -23,6 +24,17 @@ struct ContentView: View {
                 Label("Rss", systemImage: "gearshape")
             }
             .tag(tab.rss)
+
+            ForYouView(
+                allItems: vm.items,
+                historyStore: vm.historyStore,
+                labelStore: vm.labelStore,
+                onOpen: { item in vm.recordHistory(item) }
+            )
+            .tabItem {
+                Label("For You", systemImage: "star.fill")
+            }
+            .tag(tab.forYou)
 
             SettingView(
                 vm: vm

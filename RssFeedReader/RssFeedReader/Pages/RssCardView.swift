@@ -51,6 +51,21 @@ struct RssCardView: View {
                     .clipped()
                     .cornerRadius(12)
 
+                if !item.labels.isEmpty {
+                    HStack(spacing: 4) {
+                        ForEach(Array(item.labels.prefix(3)), id: \.self) { label in
+                            Text(label)
+                                .font(.caption2)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.blue.opacity(0.15))
+                                .foregroundStyle(.blue)
+                                .clipShape(Capsule())
+                        }
+                        Spacer()
+                    }
+                }
+
                 Text(item.siteURL.isEmpty ? item.link : item.siteURL)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
@@ -126,8 +141,14 @@ struct RssCardView: View {
 }
 
 #Preview {
-    RssCardView(
-        item: FeedItem(title: "Example News 1", link: "https://example.com/1", pubDate: Date(), thumbnailURL: nil, siteTitle: "iteeeeeeeewwwwwww"),
-        onTap: {}
-    )
+    VStack {
+        RssCardView(
+            item: FeedItem(title: "Example News 1", link: "https://example.com/1", pubDate: Date(), thumbnailURL: nil, siteTitle: "iteeeeeeeewwwwwww", labels: ["go", "backend", "GCP"]),
+            onTap: {}
+        )
+        RssCardView(
+            item: FeedItem(title: "No labels article", link: "https://example.com/2", pubDate: Date(), thumbnailURL: nil, siteTitle: "Site"),
+            onTap: {}
+        )
+    }
 }

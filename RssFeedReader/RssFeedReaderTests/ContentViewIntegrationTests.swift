@@ -1,5 +1,5 @@
-@testable import RssFeedReader
 import Foundation
+@testable import RssFeedReader
 import Testing
 
 struct ContentViewIntegrationTests {
@@ -22,7 +22,7 @@ struct ContentViewIntegrationTests {
     @MainActor
     @Test func contentViewInitializes() {
         let view = ContentView()
-        let _ = view
+        _ = view
         #expect(true)
     }
 }

@@ -1,5 +1,5 @@
-@testable import RssFeedReader
 import Foundation
+@testable import RssFeedReader
 import Testing
 
 /// Task 3.3: HistoryView の削除 UI コールバックシグネチャ検証
@@ -17,7 +17,7 @@ struct HistoryViewDeleteUITests {
                 link: "https://example.com/a",
                 feedName: "Feed",
                 viewedAt: Date()
-            )
+            ),
         ]
 
         // コールバックをキャプチャしてシグネチャを検証
@@ -50,7 +50,7 @@ struct HistoryViewDeleteUITests {
         )
 
         // HistoryView が正常に構築されることを確認（コンパイル時検証）
-        let _ = view
+        _ = view
         #expect(openedEntry == nil)
         #expect(deletedEntry == nil)
         #expect(!clearAllCalled)
