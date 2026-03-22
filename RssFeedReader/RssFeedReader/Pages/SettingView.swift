@@ -14,39 +14,42 @@ struct SettingView: View {
     @State private var ollamaStatus: OllamaStatus = .checking
 
     var body: some View {
-        VStack(spacing: 12) {
-            // URL追加UI
-            HStack {
-                TextField("RSS URL を追加", text: $newURL)
-                    .textFieldStyle(.roundedBorder)
+        VStack(alignment: .leading, spacing: 12) {
 
-                Button("追加") {
-                    let t = newURL.trimmingCharacters(in: .whitespacesAndNewlines)
-                    guard !t.isEmpty else { return }
-                    vm.feeds.append(
-                        Feed(
-                            url: t,
-                            limit: nil,
-                            pubDateLimitDay: nil,
-                            show: true
-                        )
-                    )
-                    newURL = ""
-                }
-            }
-
-            // Ollama ステータス
-            ollamaStatusView
-
-            // ラベル再取得
-            Button("ラベルを再取得（デバッグ用）") {
-                vm.relabelAll()
-            }
-            .foregroundStyle(.orange)
-
-            // 登録済みURL一覧
             List {
+                Section("") {}
+                Section("ラベル設定") {
+                    // Ollama ステータス
+                    ollamaStatusView.listRowSeparator(.hidden)
+                    
+                    // ラベル再取得
+                    Button("ラベルを再取得（デバッグ用）") {
+                        vm.relabelAll()
+                    }
+                    .foregroundStyle(.orange).padding(.bottom, 16)
+                }
                 Section("RSSフィード") {
+                    // URL追加UI
+                    HStack {
+                        TextField("RSS URL を追加", text: $newURL)
+                            .textFieldStyle(.roundedBorder)
+
+                        Button("追加") {
+                            let t = newURL.trimmingCharacters(in: .whitespacesAndNewlines)
+                            guard !t.isEmpty else { return }
+                            vm.feeds.append(
+                                Feed(
+                                    url: t,
+                                    limit: nil,
+                                    pubDateLimitDay: nil,
+                                    show: true
+                                )
+                            )
+                            newURL = ""
+                        }
+                    }.padding(.bottom, 16)
+                    
+                    
                     ForEach($vm.feeds, id: \.self) { $feed in
                         HStack {
                             Toggle(isOn: $feed.show) {
@@ -54,13 +57,14 @@ struct SettingView: View {
                                     .lineLimit(1)
                                     .truncationMode(.middle)
                             }.toggleStyle(.switch)
-                        }
+                        }.padding(.horizontal,8)
                     }
                     .onDelete { vm.feeds.remove(atOffsets: $0) }
-                }
-            }
+                }.listRowSeparator(.hidden)
+            }.listStyle(.plain)
+            
         }
-        .padding()
+        
         .task { await checkOllama() }
     }
 
