@@ -66,11 +66,17 @@ final class FeedViewModel: ObservableObject {
 
     @Published private(set) var historyEntries: [HistoryEntry] = []
 
+    @Published private(set) var historyStore: HistoryStore = .init()
+
+    @Published private(set) var labelStore: LabelStore = LabelStore()
+
     private let parser = UnifiedFeedParser()
     private let seenRepo = SeenStoreRepository()
     private var seenStore: SeenStore = .init()
     private let historyRepo: HistoryStoreRepository
-    private var historyStore: HistoryStore = .init()
+    private let labelRepo: LabelStoreRepository
+    private let contentFetcher: ArticleContentFetchable
+    private let labelingService: LabelingServiceProtocol
 
     private enum DefaultsKey {
         static let feeds = "feeds.v1"
@@ -78,10 +84,20 @@ final class FeedViewModel: ObservableObject {
 
     private var cancellables = Set<AnyCancellable>()
 
-    init(historyRepo: HistoryStoreRepository = HistoryStoreRepository()) {
+    init(
+        historyRepo: HistoryStoreRepository = HistoryStoreRepository(),
+        labelRepo: LabelStoreRepository = LabelStoreRepository(),
+        contentFetcher: ArticleContentFetchable = ArticleContentFetcher(),
+        labelingService: LabelingServiceProtocol = LabelingService()
+    ) {
         self.historyRepo = historyRepo
+        self.labelRepo = labelRepo
+        self.contentFetcher = contentFetcher
+        self.labelingService = labelingService
+
         historyStore = historyRepo.load()
         historyEntries = historyStore.entries
+        labelStore = labelRepo.load()
 
         loadFeeds()
 
@@ -260,5 +276,46 @@ final class FeedViewModel: ObservableObject {
         }
         seenStore.lastUpdatedAt = Date()
         seenRepo.save(seenStore)
+
+        // バックグラウンドでラベリングを起動（UIをブロックしない）
+        let allItems = self.items
+        Task {
+            await labelArticles(allItems)
+        }
+    }
+
+    func relabelAll() {
+        labelStore = LabelStore()
+        labelRepo.save(labelStore)
+        let allItems = items
+        Task {
+            await labelArticles(allItems)
+        }
+    }
+
+    // MARK: - ラベリング
+
+    /// 未ラベリング記事のコンテンツを取得してOllamaでラベリングし、labelStoreを更新する
+    /// @testable import 経由でテストから直接呼び出し可能
+    func labelArticles(_ items: [FeedItem]) async {
+        let currentStore = labelStore
+        let unlabeled = items.filter { currentStore.labelsByURL[$0.link] == nil && !$0.link.isEmpty }
+
+        for item in unlabeled {
+            let url = item.link
+            do {
+                guard let articleURL = URL(string: url) else { continue }
+                print("[LabelingPipeline] fetching content: \(url)")
+                let content = try await contentFetcher.fetch(url: articleURL)
+                print("[LabelingPipeline] sending to Ollama: \(url)")
+                let labels = try await labelingService.label(content: content)
+                print("[LabelingPipeline] labeled \(url): \(labels)")
+                let articleLabel = ArticleLabel(url: url, labels: labels, labeledAt: Date())
+                labelStore.labelsByURL[url] = articleLabel
+                labelRepo.save(labelStore)
+            } catch {
+                print("[LabelingPipeline] error for \(url): \(error)")
+            }
+        }
     }
 }

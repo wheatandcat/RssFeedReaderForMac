@@ -14,6 +14,7 @@ struct FeedItem: Identifiable, Hashable {
 
     var stableID: String = ""
     var isNew: Bool = false
+    var labels: [String] = []
 }
 
 extension FeedItem {
