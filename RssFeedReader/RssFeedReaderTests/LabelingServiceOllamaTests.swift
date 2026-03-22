@@ -1,5 +1,5 @@
-@testable import RssFeedReader
 import Foundation
+@testable import RssFeedReader
 import Testing
 
 // ArticleContentFetcherTests で定義済みの MockURLProtocol を再利用するため、
@@ -8,7 +8,7 @@ import Testing
 final class MockOllamaURLProtocol: URLProtocol {
     static var requestHandler: ((URLRequest) throws -> (HTTPURLResponse, Data))?
 
-    override class func canInit(with request: URLRequest) -> Bool { true }
+    override class func canInit(with _: URLRequest) -> Bool { true }
     override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
 
     override func startLoading() {
@@ -52,7 +52,6 @@ private func ollamaResponse(labels: [String]) -> Data {
 }
 
 struct LabelingServiceOllamaTests {
-
     // MARK: - リクエスト送信
 
     @Test func sendsPOSTRequestToOllamaEndpoint() async throws {

@@ -1,5 +1,5 @@
-@testable import RssFeedReader
 import Foundation
+@testable import RssFeedReader
 import Testing
 
 struct HistoryStoreRepositoryTests {
@@ -30,7 +30,7 @@ struct HistoryStoreRepositoryTests {
                 link: "https://example.com/1",
                 feedName: "Zenn",
                 viewedAt: Date(timeIntervalSince1970: 1_700_000_000)
-            )
+            ),
         ]
 
         repo.save(store)
@@ -71,9 +71,9 @@ struct HistoryStoreRepositoryTests {
         let repo = makeRepository()
         var store = HistoryStore()
         store.entries = [
-            HistoryEntry(stableID: "a", title: "A", link: "https://a.com", feedName: "FA", viewedAt: Date(timeIntervalSince1970: 1_000)),
-            HistoryEntry(stableID: "b", title: "B", link: "https://b.com", feedName: "FB", viewedAt: Date(timeIntervalSince1970: 2_000)),
-            HistoryEntry(stableID: "c", title: "C", link: "https://c.com", feedName: "FC", viewedAt: Date(timeIntervalSince1970: 3_000)),
+            HistoryEntry(stableID: "a", title: "A", link: "https://a.com", feedName: "FA", viewedAt: Date(timeIntervalSince1970: 1000)),
+            HistoryEntry(stableID: "b", title: "B", link: "https://b.com", feedName: "FB", viewedAt: Date(timeIntervalSince1970: 2000)),
+            HistoryEntry(stableID: "c", title: "C", link: "https://c.com", feedName: "FC", viewedAt: Date(timeIntervalSince1970: 3000)),
         ]
 
         repo.save(store)

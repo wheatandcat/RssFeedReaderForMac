@@ -1,5 +1,5 @@
-@testable import RssFeedReader
 import Foundation
+@testable import RssFeedReader
 import Testing
 
 // MockOllamaURLProtocol は LabelingServiceOllamaTests.swift で定義済み
@@ -10,9 +10,7 @@ private func makeMockValidationSession() -> URLSession {
     return URLSession(configuration: config)
 }
 
-
 struct LabelingServiceValidationTests {
-
     // MARK: - supportedLabels 定義
 
     @Test func supportedLabelsContainsAllRequiredTechLabels() {
@@ -22,7 +20,7 @@ struct LabelingServiceValidationTests {
             "orm", "web", "react", "vue", "next", "css", "graphql", "gRPC",
             "go", "ruby", "rails", "マネージング", "チームビルディング",
             "AI", "cloudflare", "GCP", "AWS", "claude code", "cursor",
-            "codex", "github", "CI/CD"
+            "codex", "github", "CI/CD",
         ]
         for label in required {
             #expect(labels.contains(label), "'\(label)' が supportedLabels に含まれていない")

@@ -1,5 +1,5 @@
-@testable import RssFeedReader
 import Foundation
+@testable import RssFeedReader
 import Testing
 
 // MARK: - テスト用モック
@@ -10,7 +10,7 @@ final class MockArticleContentFetcher: ArticleContentFetchable {
     init(content: String) { result = .success(content) }
     init(error: Error) { result = .failure(error) }
 
-    func fetch(url: URL) async throws -> String {
+    func fetch(url _: URL) async throws -> String {
         try result.get()
     }
 }
@@ -21,7 +21,7 @@ final class MockLabelingService: LabelingServiceProtocol {
     init(labels: [String]) { result = .success(labels) }
     init(error: Error) { result = .failure(error) }
 
-    func label(content: String) async throws -> [String] {
+    func label(content _: String) async throws -> [String] {
         try result.get()
     }
 }
@@ -30,7 +30,6 @@ final class MockLabelingService: LabelingServiceProtocol {
 
 @MainActor
 struct FeedViewModelLabelingTests {
-
     private func makeLabelRepo() -> LabelStoreRepository {
         let defaults = UserDefaults(suiteName: "test.label.\(UUID().uuidString)")!
         return LabelStoreRepository(defaults: defaults)
@@ -49,7 +48,7 @@ struct FeedViewModelLabelingTests {
         store.labelsByURL["https://example.com"] = ArticleLabel(
             url: "https://example.com",
             labels: ["go"],
-            labeledAt: Date(timeIntervalSince1970: 1_000)
+            labeledAt: Date(timeIntervalSince1970: 1000)
         )
         labelRepo.save(store)
 

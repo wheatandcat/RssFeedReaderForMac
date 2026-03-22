@@ -1,9 +1,8 @@
-@testable import RssFeedReader
 import Foundation
+@testable import RssFeedReader
 import Testing
 
 struct FeedItemLabelsTests {
-
     // MARK: - labelsフィールドのデフォルト値
 
     @Test func labelsDefaultsToEmptyArray() {

@@ -116,7 +116,7 @@ final class LabelingService: LabelingServiceProtocol {
             model: modelName,
             messages: [
                 OllamaMessage(role: "system", content: systemPrompt),
-                OllamaMessage(role: "user", content: content)
+                OllamaMessage(role: "user", content: content),
             ],
             stream: false,
             format: "json"
@@ -141,7 +141,7 @@ final class LabelingService: LabelingServiceProtocol {
                 NSURLErrorCannotConnectToHost,
                 NSURLErrorNetworkConnectionLost,
                 NSURLErrorNotConnectedToInternet,
-                NSURLErrorTimedOut
+                NSURLErrorTimedOut,
             ]
             if urlError.code == NSURLErrorTimedOut {
                 throw LabelingServiceError.timeout

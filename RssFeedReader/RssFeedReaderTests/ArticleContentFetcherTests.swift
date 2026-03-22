@@ -1,5 +1,5 @@
-@testable import RssFeedReader
 import Foundation
+@testable import RssFeedReader
 import Testing
 
 // MARK: - URLProtocol モック（ネットワーク不要なテスト用）
@@ -7,7 +7,7 @@ import Testing
 final class MockURLProtocol: URLProtocol {
     static var requestHandler: ((URLRequest) throws -> (HTTPURLResponse, Data))?
 
-    override class func canInit(with request: URLRequest) -> Bool { true }
+    override class func canInit(with _: URLRequest) -> Bool { true }
     override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
 
     override func startLoading() {
@@ -37,7 +37,6 @@ private func makeMockSession() -> URLSession {
 // MARK: - ArticleContentFetcherTests
 
 struct ArticleContentFetcherTests {
-
     // MARK: - stripHTML: タグ除去
 
     @Test func stripHTMLRemovesBasicTags() {
@@ -119,7 +118,7 @@ struct ArticleContentFetcherTests {
         do {
             _ = try await fetcher.fetch(url: URL(string: "https://example.com")!)
             Issue.record("エラーがスローされるべき")
-        } catch ArticleContentFetcherError.httpError(let code) {
+        } catch let ArticleContentFetcherError.httpError(code) {
             #expect(code == 404)
         } catch {
             Issue.record("予期しないエラー: \(error)")
@@ -141,7 +140,7 @@ struct ArticleContentFetcherTests {
         do {
             _ = try await fetcher.fetch(url: URL(string: "https://example.com")!)
             Issue.record("エラーがスローされるべき")
-        } catch ArticleContentFetcherError.httpError(let code) {
+        } catch let ArticleContentFetcherError.httpError(code) {
             #expect(code == 500)
         } catch {
             Issue.record("予期しないエラー: \(error)")

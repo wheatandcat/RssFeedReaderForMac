@@ -1,5 +1,5 @@
-@testable import RssFeedReader
 import Foundation
+@testable import RssFeedReader
 import Testing
 
 // MockArticleContentFetcher, MockLabelingService は
@@ -16,7 +16,7 @@ final class CountingLabelingService: LabelingServiceProtocol {
         self.labels = labels
     }
 
-    func label(content: String) async throws -> [String] {
+    func label(content _: String) async throws -> [String] {
         callCount += 1
         return labels
     }
@@ -33,7 +33,6 @@ final class CountingContentFetcher: ArticleContentFetchable {
 
 @MainActor
 struct FeedViewModelSkipLabelingTests {
-
     private func makeLabelRepo(store: LabelStore? = nil) -> LabelStoreRepository {
         let defaults = UserDefaults(suiteName: "test.label.\(UUID().uuidString)")!
         let repo = LabelStoreRepository(defaults: defaults)
@@ -54,7 +53,7 @@ struct FeedViewModelSkipLabelingTests {
         existingStore.labelsByURL["https://example.com/a"] = ArticleLabel(
             url: "https://example.com/a",
             labels: ["go"],
-            labeledAt: Date(timeIntervalSince1970: 1_000)
+            labeledAt: Date(timeIntervalSince1970: 1000)
         )
         let labelRepo = makeLabelRepo(store: existingStore)
         let labeler = CountingLabelingService(labels: ["backend"])
@@ -84,7 +83,7 @@ struct FeedViewModelSkipLabelingTests {
         existingStore.labelsByURL["https://example.com/a"] = ArticleLabel(
             url: "https://example.com/a",
             labels: ["go"],
-            labeledAt: Date(timeIntervalSince1970: 1_000)
+            labeledAt: Date(timeIntervalSince1970: 1000)
         )
         let labelRepo = makeLabelRepo(store: existingStore)
         let labeler = CountingLabelingService(labels: ["frontend"])

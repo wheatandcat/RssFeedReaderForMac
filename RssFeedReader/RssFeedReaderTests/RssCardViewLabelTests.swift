@@ -1,9 +1,8 @@
-@testable import RssFeedReader
 import Foundation
+@testable import RssFeedReader
 import Testing
 
 struct RssCardViewLabelTests {
-
     // MARK: - ラベル表示ロジック（prefix(3)）
 
     @Test func labelsPrefixLimitsToThreeItems() {
@@ -44,7 +43,7 @@ struct RssCardViewLabelTests {
         item.title = "Go言語入門"
         item.labels = ["go", "backend"]
         let view = RssCardView(item: item, onTap: {})
-        let _ = view
+        _ = view
         #expect(true)
     }
 
@@ -52,7 +51,7 @@ struct RssCardViewLabelTests {
     @Test func rssCardViewInitializesWithEmptyLabels() {
         let item = FeedItem()
         let view = RssCardView(item: item, onTap: {})
-        let _ = view
+        _ = view
         #expect(true)
     }
 
@@ -61,7 +60,7 @@ struct RssCardViewLabelTests {
         var item = FeedItem()
         item.labels = ["go", "backend", "GCP", "CI/CD", "sre", "AI"]
         let view = RssCardView(item: item, onTap: {})
-        let _ = view
+        _ = view
         #expect(true)
     }
 }

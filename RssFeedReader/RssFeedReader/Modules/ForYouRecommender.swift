@@ -6,7 +6,6 @@ struct ScoredItem {
 }
 
 final class ForYouRecommender {
-
     /// 閲覧履歴ラベル頻度に基づき未閲覧記事をスコアリングして返す。
     ///
     /// - Parameters:

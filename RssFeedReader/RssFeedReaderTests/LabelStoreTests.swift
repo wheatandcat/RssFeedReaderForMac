@@ -1,9 +1,8 @@
-@testable import RssFeedReader
 import Foundation
+@testable import RssFeedReader
 import Testing
 
 struct LabelStoreTests {
-
     // MARK: - LabelStore デフォルト値
 
     @Test func labelStoreDefaultsToEmptyDictionary() {
@@ -41,8 +40,8 @@ struct LabelStoreTests {
     @Test func samURLOverwritesPreviousLabel() {
         var store = LabelStore()
         let url = "https://example.com/article"
-        let first = ArticleLabel(url: url, labels: ["go"], labeledAt: Date(timeIntervalSince1970: 1_000))
-        let second = ArticleLabel(url: url, labels: ["go", "backend"], labeledAt: Date(timeIntervalSince1970: 2_000))
+        let first = ArticleLabel(url: url, labels: ["go"], labeledAt: Date(timeIntervalSince1970: 1000))
+        let second = ArticleLabel(url: url, labels: ["go", "backend"], labeledAt: Date(timeIntervalSince1970: 2000))
 
         store.labelsByURL[url] = first
         store.labelsByURL[url] = second

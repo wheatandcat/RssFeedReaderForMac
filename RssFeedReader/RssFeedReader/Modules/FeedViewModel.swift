@@ -68,7 +68,7 @@ final class FeedViewModel: ObservableObject {
 
     @Published private(set) var historyStore: HistoryStore = .init()
 
-    @Published private(set) var labelStore: LabelStore = LabelStore()
+    @Published private(set) var labelStore: LabelStore = .init()
 
     private let parser = UnifiedFeedParser()
     private let seenRepo = SeenStoreRepository()
@@ -278,7 +278,7 @@ final class FeedViewModel: ObservableObject {
         seenRepo.save(seenStore)
 
         // バックグラウンドでラベリングを起動（UIをブロックしない）
-        let allItems = self.items
+        let allItems = items
         Task {
             await labelArticles(allItems)
         }

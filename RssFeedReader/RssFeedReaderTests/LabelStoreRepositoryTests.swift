@@ -1,5 +1,5 @@
-@testable import RssFeedReader
 import Foundation
+@testable import RssFeedReader
 import Testing
 
 struct LabelStoreRepositoryTests {
@@ -45,8 +45,8 @@ struct LabelStoreRepositoryTests {
     @Test func saveAndLoadMultipleArticleLabels() {
         let repo = makeRepository()
         var store = LabelStore()
-        store.labelsByURL["https://a.com"] = ArticleLabel(url: "https://a.com", labels: ["go"], labeledAt: Date(timeIntervalSince1970: 1_000))
-        store.labelsByURL["https://b.com"] = ArticleLabel(url: "https://b.com", labels: ["frontend", "react"], labeledAt: Date(timeIntervalSince1970: 2_000))
+        store.labelsByURL["https://a.com"] = ArticleLabel(url: "https://a.com", labels: ["go"], labeledAt: Date(timeIntervalSince1970: 1000))
+        store.labelsByURL["https://b.com"] = ArticleLabel(url: "https://b.com", labels: ["frontend", "react"], labeledAt: Date(timeIntervalSince1970: 2000))
 
         repo.save(store)
         let loaded = repo.load()
@@ -61,11 +61,11 @@ struct LabelStoreRepositoryTests {
     @Test func saveOverwritesPreviousData() {
         let repo = makeRepository()
         var store = LabelStore()
-        store.labelsByURL["https://example.com"] = ArticleLabel(url: "https://example.com", labels: ["go"], labeledAt: Date(timeIntervalSince1970: 1_000))
+        store.labelsByURL["https://example.com"] = ArticleLabel(url: "https://example.com", labels: ["go"], labeledAt: Date(timeIntervalSince1970: 1000))
         repo.save(store)
 
         var updated = LabelStore()
-        updated.labelsByURL["https://example.com"] = ArticleLabel(url: "https://example.com", labels: ["go", "backend"], labeledAt: Date(timeIntervalSince1970: 2_000))
+        updated.labelsByURL["https://example.com"] = ArticleLabel(url: "https://example.com", labels: ["go", "backend"], labeledAt: Date(timeIntervalSince1970: 2000))
         repo.save(updated)
 
         let loaded = repo.load()

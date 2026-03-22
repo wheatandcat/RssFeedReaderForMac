@@ -1,5 +1,5 @@
-@testable import RssFeedReader
 import Foundation
+@testable import RssFeedReader
 import Testing
 
 // ForYouView はSwiftUIビューのため直接ユニットテストは困難。
@@ -7,7 +7,6 @@ import Testing
 // ここでは ForYouView が依存する ForYouRecommender との統合を検証する。
 
 struct ForYouViewLogicTests {
-
     private let recommender = ForYouRecommender()
 
     // referenceDate: 2026-03-22
@@ -33,7 +32,7 @@ struct ForYouViewLogicTests {
     @Test func emptyStateWhenAllItemsViewed() {
         var historyStore = HistoryStore()
         historyStore.entries = [
-            HistoryEntry(stableID: "h1", title: "記事A", link: "https://example.com/a", feedName: "Feed", viewedAt: withinDate)
+            HistoryEntry(stableID: "h1", title: "記事A", link: "https://example.com/a", feedName: "Feed", viewedAt: withinDate),
         ]
         var labelStore = LabelStore()
         labelStore.labelsByURL["https://example.com/a"] = ArticleLabel(url: "https://example.com/a", labels: ["go"], labeledAt: referenceDate)
@@ -53,7 +52,7 @@ struct ForYouViewLogicTests {
     @Test func recommendedItemsAreReturnedForMatchingLabels() {
         var historyStore = HistoryStore()
         historyStore.entries = [
-            HistoryEntry(stableID: "h1", title: "閲覧済み", link: "https://example.com/viewed", feedName: "Feed", viewedAt: withinDate)
+            HistoryEntry(stableID: "h1", title: "閲覧済み", link: "https://example.com/viewed", feedName: "Feed", viewedAt: withinDate),
         ]
         var labelStore = LabelStore()
         labelStore.labelsByURL["https://example.com/viewed"] = ArticleLabel(url: "https://example.com/viewed", labels: ["go"], labeledAt: referenceDate)
@@ -75,7 +74,7 @@ struct ForYouViewLogicTests {
     @Test func noRecommendationWhenLabelsDontMatch() {
         var historyStore = HistoryStore()
         historyStore.entries = [
-            HistoryEntry(stableID: "h1", title: "閲覧済み", link: "https://example.com/viewed", feedName: "Feed", viewedAt: withinDate)
+            HistoryEntry(stableID: "h1", title: "閲覧済み", link: "https://example.com/viewed", feedName: "Feed", viewedAt: withinDate),
         ]
         var labelStore = LabelStore()
         labelStore.labelsByURL["https://example.com/viewed"] = ArticleLabel(url: "https://example.com/viewed", labels: ["go"], labeledAt: referenceDate)

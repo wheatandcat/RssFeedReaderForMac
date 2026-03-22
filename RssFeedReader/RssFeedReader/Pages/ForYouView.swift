@@ -145,9 +145,9 @@ struct ForYouView: View {
         var store = HistoryStore()
         store.entries = [
             HistoryEntry(stableID: "h1", title: "Go言語入門", link: "https://example.com/go-intro", feedName: "Zenn", viewedAt: Date().addingTimeInterval(-86400)),
-            HistoryEntry(stableID: "h2", title: "Reactの基礎", link: "https://example.com/react-intro", feedName: "Qiita", viewedAt: Date().addingTimeInterval(-172800)),
-            HistoryEntry(stableID: "h3", title: "Rustで高速化", link: "https://example.com/rust", feedName: "Zenn", viewedAt: Date().addingTimeInterval(-259200)),
-            HistoryEntry(stableID: "h4", title: "GoのWebフレームワーク", link: "https://example.com/go-web", feedName: "Zenn", viewedAt: Date().addingTimeInterval(-345600)),
+            HistoryEntry(stableID: "h2", title: "Reactの基礎", link: "https://example.com/react-intro", feedName: "Qiita", viewedAt: Date().addingTimeInterval(-172_800)),
+            HistoryEntry(stableID: "h3", title: "Rustで高速化", link: "https://example.com/rust", feedName: "Zenn", viewedAt: Date().addingTimeInterval(-259_200)),
+            HistoryEntry(stableID: "h4", title: "GoのWebフレームワーク", link: "https://example.com/go-web", feedName: "Zenn", viewedAt: Date().addingTimeInterval(-345_600)),
         ]
         return store
     }()

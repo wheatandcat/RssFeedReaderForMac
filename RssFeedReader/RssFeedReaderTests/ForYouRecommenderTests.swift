@@ -1,5 +1,5 @@
-@testable import RssFeedReader
 import Foundation
+@testable import RssFeedReader
 import Testing
 
 struct ForYouRecommenderTests {
@@ -146,15 +146,15 @@ struct ForYouRecommenderTests {
         // 頻度: go=2, AI=1
         var item1 = FeedItem()
         item1.link = "https://new.com/ai-only"
-        item1.labels = ["AI"]  // score=1
+        item1.labels = ["AI"] // score=1
 
         var item2 = FeedItem()
         item2.link = "https://new.com/go-only"
-        item2.labels = ["go"]  // score=2
+        item2.labels = ["go"] // score=2
 
         var item3 = FeedItem()
         item3.link = "https://new.com/go-ai"
-        item3.labels = ["go", "AI"]  // score=3
+        item3.labels = ["go", "AI"] // score=3
 
         let result = recommender.recommend(
             allItems: [item1, item2, item3],

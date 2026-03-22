@@ -1,5 +1,5 @@
-import SwiftUI
 import AppKit
+import SwiftUI
 
 private enum OllamaStatus {
     case checking
@@ -15,13 +15,12 @@ struct SettingView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-
             List {
                 Section("") {}
                 Section("ラベル設定") {
                     // Ollama ステータス
                     ollamaStatusView.listRowSeparator(.hidden)
-                    
+
                     // ラベル再取得
                     Button("ラベルを再取得（デバッグ用）") {
                         vm.relabelAll()
@@ -48,8 +47,7 @@ struct SettingView: View {
                             newURL = ""
                         }
                     }.padding(.bottom, 16)
-                    
-                    
+
                     ForEach($vm.feeds, id: \.self) { $feed in
                         HStack {
                             Toggle(isOn: $feed.show) {
@@ -57,14 +55,13 @@ struct SettingView: View {
                                     .lineLimit(1)
                                     .truncationMode(.middle)
                             }.toggleStyle(.switch)
-                        }.padding(.horizontal,8)
+                        }.padding(.horizontal, 8)
                     }
                     .onDelete { vm.feeds.remove(atOffsets: $0) }
                 }.listRowSeparator(.hidden)
             }.listStyle(.plain)
-            
         }
-        
+
         .task { await checkOllama() }
     }
 
@@ -147,7 +144,7 @@ struct SettingView: View {
             var request = URLRequest(url: url, timeoutInterval: 3)
             request.httpMethod = "GET"
             let (_, response) = try await URLSession.shared.data(for: request)
-            if let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) {
+            if let http = response as? HTTPURLResponse, (200 ... 299).contains(http.statusCode) {
                 ollamaStatus = .connected
             } else {
                 ollamaStatus = .disconnected
